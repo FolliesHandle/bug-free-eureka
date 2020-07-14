@@ -1,12 +1,25 @@
 # class definitions for actions
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine import Engine
+    from entity import Entity
+
 
 class Action:
-    pass
+    # perform function determines scope
+    # engine is where the action is being performed
+    # entity is the object performing the action
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        raise NotImplementedError()
 
 
 class EscapeAction(Action):
-    pass
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        raise SystemExit()
 
 
 # movement action as an object with dx and dy
@@ -16,3 +29,15 @@ class MovementAction(Action):
 
         self.dx = dx
         self.dy = dy
+
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
+
+        if not engine.game_map.in_bounds(dest_x, dest_y):
+            return
+
+        if not engine.game_map.tiles['walkable'][dest_x, dest_y]:
+            return
+
+        entity.move(self.dx, self.dy)
